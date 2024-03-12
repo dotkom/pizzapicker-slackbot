@@ -1,8 +1,11 @@
 use reqwest::header::{HeaderMap, HeaderValue};
 use reqwest::{Client, Result};
+use tokio::sync::oneshot;
+use tokio::sync::oneshot::Receiver;
+use tokio::task::JoinHandle;
 
 use tungstenite::stream::MaybeTlsStream;
-use tungstenite::WebSocket;
+use tungstenite::{Message, WebSocket};
 
 /// Get the websocket endpoint for the slack bot
 ///
@@ -24,7 +27,7 @@ pub async fn get_websocket_endpoint(client: &Client) -> Result<String> {
 
 /// Connect to a given websocket endpoint
 #[tracing::instrument]
-pub fn establish_websocket_connection(url: &str) -> WebSocket<MaybeTlsStream<std::net::TcpStream>> {
+fn establish_websocket_connection(url: &str) -> SlackWebSocket {
     let (socket, response) = tungstenite::connect(url).expect("Failed to connect to websocket");
     tracing::info!(
         "Request for websocket connection returned {}",
@@ -33,7 +36,9 @@ pub fn establish_websocket_connection(url: &str) -> WebSocket<MaybeTlsStream<std
     socket
 }
 
-pub fn create_slack_client() -> Client {
+type SlackWebSocket = WebSocket<MaybeTlsStream<std::net::TcpStream>>;
+
+fn create_slack_client() -> Client {
     let app_token = std::env::var("SLACK_APP_TOKEN").expect("SLACK_APP_TOKEN must be set");
     let mut default_headers = HeaderMap::new();
     let bearer_token = format!("Bearer {}", app_token);
@@ -41,9 +46,79 @@ pub fn create_slack_client() -> Client {
     authorization_header.set_sensitive(true);
     default_headers.insert("Authorization", authorization_header);
 
-    
+
     Client::builder()
         .default_headers(default_headers)
         .build()
         .expect("Failed to create reqwest client")
+}
+
+/// Create a channel that emits messages from the websocket
+///
+/// This function returns a Tokio oneshot channel that will be used to send parsed JSON messages
+/// from the Slack channel.
+///
+/// Additionally, this function will automatically reconnect to the websocket if the server sends
+/// a disconnect message.
+///
+/// TODO: Consider whether we should type out the messages that can be sent over the channel and
+///  received over the websocket
+#[tracing::instrument]
+pub async fn create_subscriber() -> (Receiver<serde_json::Value>, JoinHandle<()>) {
+    let client = create_slack_client();
+    let (_tx, rx) = oneshot::channel::<serde_json::Value>();
+    // Perform the initial websocket connection
+    let wss_endpoint = get_websocket_endpoint(&client)
+        .await
+        .expect("Failed to get websocket endpoint");
+    let socket = establish_websocket_connection(&wss_endpoint);
+
+    // Spawn a worker thread to read messages from the channel and translate them into messages
+    // to be sent across the oneshot channel
+    let future = tokio::spawn(async move {
+        let mut socket = socket;
+        loop {
+            let msg = socket.read().expect("Failed to read from websocket");
+            // The Slack API promises that messages are sent as JSON, so we can safely assume that
+            // the message is a JSON string
+            let msg = match msg {
+                Message::Text(msg) => msg,
+                Message::Ping(_) => {
+                    tracing::debug!("Received ping from Slack websocket");
+                    socket.send(Message::Pong(vec![])).expect("Failed to send pong");
+                    continue
+                },
+                _ => {
+                    tracing::warn!("Received non-Text message from Slack websocket");
+                    continue
+                },
+            };
+            let msg: serde_json::Value = serde_json::from_str(&msg)
+                .expect("Failed to parse JSON message from Slack");
+            // If the server requests a regular disconnect, we should reconnect, but if the server
+            // sends a link_disallowed message, we should stop the bot
+            let message_type = msg["type"].as_str().expect("No type field in message");
+            tracing::debug!("Received message of type {}", message_type);
+            match message_type {
+                "disconnect" => {
+                    socket.close(None).expect("Failed to close websocket");
+                    // If the Socket Mode was disabled, stop trying
+                    if let Some("link_disabled") = msg["reason"].as_str() {
+                        tracing::info!("Link disabled, stopping bot");
+                        break
+                    }
+                    // Otherwise, reconnect to the websocket with a new endpoint
+                    tracing::info!("Reconnecting to Slack websocket");
+                    let new_wss_endpoint = get_websocket_endpoint(&client)
+                        .await
+                        .expect("Failed to get websocket endpoint");
+                    socket = establish_websocket_connection(&new_wss_endpoint);
+                    continue
+                }
+                _ => tracing::warn!("Unhandled message of type {}", message_type)
+            };
+        }
+    });
+
+    (rx, future)
 }

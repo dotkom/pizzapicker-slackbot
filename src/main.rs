@@ -1,4 +1,5 @@
-use crate::slack::{create_slack_client, establish_websocket_connection, get_websocket_endpoint};
+use tokio::join;
+use crate::slack::create_subscriber;
 
 mod slack;
 
@@ -8,15 +9,7 @@ async fn main() {
         .with_max_level(tracing::Level::INFO)
         .with_ansi(true)
         .init();
+    let (_rx, future) = create_subscriber().await;
 
-    let client = create_slack_client();
-    let ws_url = get_websocket_endpoint(&client)
-        .await
-        .expect("Failed to get websocket endpoint");
-    let mut socket = establish_websocket_connection(&ws_url);
-
-    loop {
-        let msg = socket.read().expect("Failed to read message");
-        println!("Received: {}", msg);
-    }
+    let _ = join!(future);
 }

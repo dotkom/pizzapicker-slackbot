@@ -4,6 +4,7 @@ use tokio::sync::oneshot;
 use tokio::sync::oneshot::Receiver;
 use tokio::task::JoinHandle;
 
+use crate::slack_message::{AcknowledgeMessage, SlackMessage};
 use tungstenite::stream::MaybeTlsStream;
 use tungstenite::{Message, WebSocket};
 
@@ -46,7 +47,6 @@ fn create_slack_client() -> Client {
     authorization_header.set_sensitive(true);
     default_headers.insert("Authorization", authorization_header);
 
-
     Client::builder()
         .default_headers(default_headers)
         .build()
@@ -85,27 +85,35 @@ pub async fn create_subscriber() -> (Receiver<serde_json::Value>, JoinHandle<()>
                 Message::Text(msg) => msg,
                 Message::Ping(_) => {
                     tracing::debug!("Received ping from Slack websocket");
-                    socket.send(Message::Pong(vec![])).expect("Failed to send pong");
-                    continue
-                },
+                    socket
+                        .send(Message::Pong(vec![]))
+                        .expect("Failed to send pong");
+                    continue;
+                }
                 _ => {
                     tracing::warn!("Received non-Text message from Slack websocket");
-                    continue
-                },
+                    continue;
+                }
             };
-            let msg: serde_json::Value = serde_json::from_str(&msg)
-                .expect("Failed to parse JSON message from Slack");
+
             // If the server requests a regular disconnect, we should reconnect, but if the server
             // sends a link_disallowed message, we should stop the bot
-            let message_type = msg["type"].as_str().expect("No type field in message");
-            tracing::debug!("Received message of type {}", message_type);
-            match message_type {
-                "disconnect" => {
+            let json = serde_json::from_str::<SlackMessage>(&msg);
+            let slack_message = match json {
+                Ok(json) => json,
+                Err(e) => {
+                    tracing::warn!("Failed to parse JSON message from Slack: {}", e);
+                    tracing::info!("Received message from Slack: {}", msg);
+                    continue;
+                }
+            };
+            match slack_message {
+                SlackMessage::Disconnect(message) => {
                     socket.close(None).expect("Failed to close websocket");
                     // If the Socket Mode was disabled, stop trying
-                    if let Some("link_disabled") = msg["reason"].as_str() {
+                    if message.reason == "link_disabled" {
                         tracing::info!("Link disabled, stopping bot");
-                        break
+                        break;
                     }
                     // Otherwise, reconnect to the websocket with a new endpoint
                     tracing::info!("Reconnecting to Slack websocket");
@@ -113,9 +121,16 @@ pub async fn create_subscriber() -> (Receiver<serde_json::Value>, JoinHandle<()>
                         .await
                         .expect("Failed to get websocket endpoint");
                     socket = establish_websocket_connection(&new_wss_endpoint);
-                    continue
+                    continue;
                 }
-                _ => tracing::warn!("Unhandled message of type {}", message_type)
+                SlackMessage::SlashCommands(message) => {
+                    tracing::info!("Received slash command: {:?}", message);
+                    let ack = AcknowledgeMessage::new(message.envelope_id);
+                    socket
+                        .send(Message::Text(serde_json::to_string(&ack).unwrap()))
+                        .expect("Failed to send acknowledge message");
+                }
+                SlackMessage::Hello(_) => tracing::info!("Received hello message from Slack"),
             };
         }
     });

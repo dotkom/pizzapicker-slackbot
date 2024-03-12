@@ -1,7 +1,8 @@
-use tokio::join;
 use crate::slack::create_subscriber;
+use tokio::join;
 
 mod slack;
+mod slack_message;
 
 #[tokio::main]
 async fn main() {

@@ -1,0 +1,26 @@
+name: Rust tests & lint
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.76
+      - name: Run tests
+        run: cargo test
+      - name: Run clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build -t pizzapicker:latest .

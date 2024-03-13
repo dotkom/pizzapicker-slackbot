@@ -1,10 +1,25 @@
-const PIZZA_OPTIONS: [&str; 3] = [
-    "**1 DEN ENKLE**: Ost & tomatsaus - og bare det!",
-    "**2 KVESS**: Ost, tomatsaus, skinke og sjapinjong",
-    "**3 DRØMMEN**: Ost, tomatsaus, kjøttdeig og rød paprika"
-];
+use lazy_static::lazy_static;
+use serde::Deserialize;
 
-pub fn get_random_pizza() -> String {
+#[derive(Debug, Clone, Deserialize)]
+pub struct PizzaDetail {
+    pub name: String,
+    pub extra: String,
+    pub description: String
+}
+
+lazy_static! {
+    static ref PIZZA_OPTIONS: Vec<PizzaDetail> = get_pizzas_from_configuration();
+}
+
+fn get_pizzas_from_configuration() -> Vec<PizzaDetail> {
+    let json = include_str!("../config/pizza.json");
+let pizzas: Vec<PizzaDetail> = serde_json::from_str(json)
+    .expect("Failed to parse pizza configuration");
+pizzas
+}
+
+pub fn get_random_pizza() -> PizzaDetail {
     let random_index = rand::random::<usize>() % PIZZA_OPTIONS.len();
-    PIZZA_OPTIONS[random_index].to_string()
+    PIZZA_OPTIONS[random_index].clone()
 }

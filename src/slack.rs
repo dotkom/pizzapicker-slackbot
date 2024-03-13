@@ -146,7 +146,14 @@ async fn handle_slash_command(message: incoming::Incoming<incoming::SlashCommand
                         r#type: "section".to_string(),
                         text: outgoing::SlackCommandBlockText {
                             r#type: "mrkdwn".to_string(),
-                            text: format!("Gratulerer {}, du har fått {}", message.payload.user_name, pizza)
+                            text: format!("Gratulerer, du har fått {}", pizza.name)
+                        }
+                    },
+                    outgoing::SlackCommandBlock {
+                        r#type: "section".to_string(),
+                        text: outgoing::SlackCommandBlockText {
+                            r#type: "mrkdwn".to_string(),
+                            text: format!("{} er en pizza med {} ({})", pizza.name, pizza.description, pizza.extra)
                         }
                     }
                 ]

@@ -1,9 +1,10 @@
 use reqwest::header::{HeaderMap, HeaderValue};
 use reqwest::{Client, Result};
-use crate::slack_message::{SlackOutgoingMessage, SlackDisconnectIncomingMessage, Incoming, SlackIncomingMessage, SlashCommandIncomingMessage, Outgoing, SlackCommandBlockText, SlackCommandBlock, SlashCommandOutgoingMessage};
 use tungstenite::stream::MaybeTlsStream;
 use tungstenite::{Message, WebSocket};
 use crate::roulette::get_random_pizza;
+use crate::slack_message::incoming;
+use crate::slack_message::outgoing;
 
 /// Get the websocket endpoint for the slack bot
 ///
@@ -87,13 +88,15 @@ pub async fn bootstrap_application() -> () {
 
         // If the server requests a regular disconnect, we should reconnect, but if the server
         // sends a link_disallowed message, we should stop the bot
-        let json = serde_json::from_str::<SlackIncomingMessage>(&msg);
+        let json = serde_json::from_str::<incoming::SlackIncomingMessage>(&msg);
         if let Err(e) = json {
             tracing::warn!("Failed to parse JSON message from Slack: {} from JSON {}", e, msg);
             continue;
         }
         match json.unwrap() {
-            SlackIncomingMessage::Disconnect(message) => {
+            incoming::SlackIncomingMessage::Disconnect(message) => {
+                // We always want to close the connection right away. Then we can decide if we want
+                // to reconnect or not.
                 socket.close(None).expect("Failed to close websocket");
                 if let Some(new_socket) = handle_disconnect_message(*message, &client).await {
                     socket = new_socket;
@@ -101,7 +104,7 @@ pub async fn bootstrap_application() -> () {
                 }
                 break;
             }
-            SlackIncomingMessage::SlashCommands(message) => {
+            incoming::SlackIncomingMessage::SlashCommands(message) => {
                 tracing::info!("Received slash command: {:?}", message);
                 let response = handle_slash_command(*message).await;
                 let json = serde_json::to_string(&response).expect("Failed to serialize response");
@@ -110,13 +113,12 @@ pub async fn bootstrap_application() -> () {
                     .send(Message::Text(json))
                     .expect("Failed to send response to Slack");
             }
-            SlackIncomingMessage::Hello(_) => tracing::info!("Received hello message from Slack"),
+            incoming::SlackIncomingMessage::Hello(_) => tracing::info!("Received hello message from Slack"),
         };
     }
 }
 
-#[tracing::instrument]
-async fn handle_disconnect_message(message: SlackDisconnectIncomingMessage, client: &Client) -> Option<SlackWebSocket> {
+async fn handle_disconnect_message(message: incoming::SlackDisconnectIncomingMessage, client: &Client) -> Option<SlackWebSocket> {
     match message.reason.as_str() {
         "link_disabled" => {
             tracing::info!("Link disabled, stopping bot");
@@ -133,24 +135,27 @@ async fn handle_disconnect_message(message: SlackDisconnectIncomingMessage, clie
 }
 
 #[tracing::instrument]
-async fn handle_slash_command(message: Incoming<SlashCommandIncomingMessage>) -> SlackOutgoingMessage {
+async fn handle_slash_command(message: incoming::Incoming<incoming::SlashCommandIncomingMessage>) -> outgoing::SlackOutgoingMessage {
     match message.payload.command.as_str() {
         "/spin" => {
             let pizza = get_random_pizza();
-            let outgoing_message = SlashCommandOutgoingMessage {
+            let outgoing_message = outgoing::SlashCommandOutgoingMessage {
                 response_type: "in_channel".to_string(),
                 blocks: vec![
-                    SlackCommandBlock {
+                    outgoing::SlackCommandBlock {
                         r#type: "section".to_string(),
-                        text: SlackCommandBlockText {
+                        text: outgoing::SlackCommandBlockText {
                             r#type: "mrkdwn".to_string(),
-                            text: format!("Du har fått {}", pizza)
+                            text: format!("Gratulerer {}, du har fått {}", message.payload.user_name, pizza)
                         }
                     }
                 ]
             };
-            SlackOutgoingMessage::SlashCommand(Outgoing::new(message.envelope_id, Some(outgoing_message)))
+            outgoing::SlackOutgoingMessage::SlashCommand(outgoing::Outgoing::new(message.envelope_id, Some(outgoing_message)))
         }
-        _ => SlackOutgoingMessage::Empty(Outgoing::new(message.envelope_id, None))
+        _ => {
+            tracing::warn!("Received unknown command: {}", message.payload.command);
+            outgoing::SlackOutgoingMessage::Empty(outgoing::Outgoing::new(message.envelope_id, None))
+        }
     }
 }

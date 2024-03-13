@@ -1,10 +1,10 @@
+use crate::roulette::get_random_pizza;
+use crate::slack_message::incoming;
+use crate::slack_message::outgoing;
 use reqwest::header::{HeaderMap, HeaderValue};
 use reqwest::{Client, Result};
 use tungstenite::stream::MaybeTlsStream;
 use tungstenite::{Message, WebSocket};
-use crate::roulette::get_random_pizza;
-use crate::slack_message::incoming;
-use crate::slack_message::outgoing;
 
 /// Get the websocket endpoint for the slack bot
 ///
@@ -90,7 +90,11 @@ pub async fn bootstrap_application() -> () {
         // sends a link_disallowed message, we should stop the bot
         let json = serde_json::from_str::<incoming::SlackIncomingMessage>(&msg);
         if let Err(e) = json {
-            tracing::warn!("Failed to parse JSON message from Slack: {} from JSON {}", e, msg);
+            tracing::warn!(
+                "Failed to parse JSON message from Slack: {} from JSON {}",
+                e,
+                msg
+            );
             continue;
         }
         match json.unwrap() {
@@ -113,17 +117,22 @@ pub async fn bootstrap_application() -> () {
                     .send(Message::Text(json))
                     .expect("Failed to send response to Slack");
             }
-            incoming::SlackIncomingMessage::Hello(_) => tracing::info!("Received hello message from Slack"),
+            incoming::SlackIncomingMessage::Hello(_) => {
+                tracing::info!("Received hello message from Slack")
+            }
         };
     }
 }
 
-async fn handle_disconnect_message(message: incoming::SlackDisconnectIncomingMessage, client: &Client) -> Option<SlackWebSocket> {
+async fn handle_disconnect_message(
+    message: incoming::SlackDisconnectIncomingMessage,
+    client: &Client,
+) -> Option<SlackWebSocket> {
     match message.reason.as_str() {
         "link_disabled" => {
             tracing::info!("Link disabled, stopping bot");
             None
-        },
+        }
         _ => {
             tracing::info!("Reconnecting to Slack websocket");
             let new_wss_endpoint = get_websocket_endpoint(client)
@@ -135,7 +144,9 @@ async fn handle_disconnect_message(message: incoming::SlackDisconnectIncomingMes
 }
 
 #[tracing::instrument]
-async fn handle_slash_command(message: incoming::Incoming<incoming::SlashCommandIncomingMessage>) -> outgoing::SlackOutgoingMessage {
+async fn handle_slash_command(
+    message: incoming::Incoming<incoming::SlashCommandIncomingMessage>,
+) -> outgoing::SlackOutgoingMessage {
     match message.payload.command.as_str() {
         "/spin" => {
             let pizza = get_random_pizza();
@@ -146,23 +157,32 @@ async fn handle_slash_command(message: incoming::Incoming<incoming::SlashCommand
                         r#type: "section".to_string(),
                         text: outgoing::SlackCommandBlockText {
                             r#type: "mrkdwn".to_string(),
-                            text: format!("Gratulerer, du har fått {}", pizza.name)
-                        }
+                            text: format!("Gratulerer, du har fått {}", pizza.name),
+                        },
                     },
                     outgoing::SlackCommandBlock {
                         r#type: "section".to_string(),
                         text: outgoing::SlackCommandBlockText {
                             r#type: "mrkdwn".to_string(),
-                            text: format!("{} er en pizza med {} ({})", pizza.name, pizza.description, pizza.extra)
-                        }
-                    }
-                ]
+                            text: format!(
+                                "{} er en pizza med {} ({})",
+                                pizza.name, pizza.description, pizza.extra
+                            ),
+                        },
+                    },
+                ],
             };
-            outgoing::SlackOutgoingMessage::SlashCommand(outgoing::Outgoing::new(message.envelope_id, Some(outgoing_message)))
+            outgoing::SlackOutgoingMessage::SlashCommand(outgoing::Outgoing::new(
+                message.envelope_id,
+                Some(outgoing_message),
+            ))
         }
         _ => {
             tracing::warn!("Received unknown command: {}", message.payload.command);
-            outgoing::SlackOutgoingMessage::Empty(outgoing::Outgoing::new(message.envelope_id, None))
+            outgoing::SlackOutgoingMessage::Empty(outgoing::Outgoing::new(
+                message.envelope_id,
+                None,
+            ))
         }
     }
 }

@@ -5,7 +5,7 @@ use serde::Deserialize;
 pub struct PizzaDetail {
     pub name: String,
     pub extra: String,
-    pub description: String
+    pub description: String,
 }
 
 lazy_static! {
@@ -14,9 +14,9 @@ lazy_static! {
 
 fn get_pizzas_from_configuration() -> Vec<PizzaDetail> {
     let json = include_str!("../config/pizza.json");
-let pizzas: Vec<PizzaDetail> = serde_json::from_str(json)
-    .expect("Failed to parse pizza configuration");
-pizzas
+    let pizzas: Vec<PizzaDetail> =
+        serde_json::from_str(json).expect("Failed to parse pizza configuration");
+    pizzas
 }
 
 pub fn get_random_pizza() -> PizzaDetail {

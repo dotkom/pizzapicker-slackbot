@@ -20,6 +20,8 @@ jobs:
         run: cargo test
       - name: Run clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
+      - name: Run fmt check
+        run: cargo fmt --all -- --check
   docker:
     runs-on: ubuntu-latest
     steps:

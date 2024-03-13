@@ -69,14 +69,14 @@ pub mod outgoing {
     #[derive(Serialize, Debug)]
     pub struct SlackCommandBlockText {
         pub r#type: String,
-        pub text: String
+        pub text: String,
     }
 
     /// A block in a Slash Command message response
     #[derive(Serialize, Debug)]
     pub struct SlackCommandBlock {
         pub r#type: String,
-        pub text: SlackCommandBlockText
+        pub text: SlackCommandBlockText,
     }
 
     /// Outgoing message for a Slash Command, according to https://api.slack.com/messaging/composing
@@ -99,12 +99,15 @@ pub mod outgoing {
     pub struct Outgoing<Payload> {
         pub envelope_id: Uuid,
         #[serde(skip_serializing_if = "Option::is_none")]
-        pub payload: Option<Payload>
+        pub payload: Option<Payload>,
     }
 
     impl<T> Outgoing<T> {
         pub fn new(envelope_id: Uuid, payload: Option<T>) -> Self {
-            Self { envelope_id, payload }
+            Self {
+                envelope_id,
+                payload,
+            }
         }
     }
 }

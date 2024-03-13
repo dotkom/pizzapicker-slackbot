@@ -1,8 +1,8 @@
 use crate::slack::bootstrap_application;
 
+mod roulette;
 mod slack;
 mod slack_message;
-mod roulette;
 
 #[tokio::main]
 async fn main() {

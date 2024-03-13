@@ -14,6 +14,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@1.76
+        with:
+          components: clippy, rust-src
       - name: Run tests
         run: cargo test
       - name: Run clippy

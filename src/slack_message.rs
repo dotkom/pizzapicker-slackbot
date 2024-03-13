@@ -5,7 +5,7 @@ use uuid::Uuid;
 ///
 /// Please refer to [Slack's documentation](https://api.slack.com/apis/connections/socket#events)
 #[derive(Deserialize, Debug)]
-pub struct SlackIncomingMessage<Payload> {
+pub struct Incoming<Payload> {
     pub payload: Payload,
     pub envelope_id: Uuid,
     pub accepts_response_payload: bool,
@@ -29,7 +29,7 @@ pub struct SlackHelloIncomingMessage {
 
 /// An incoming Slash Command message
 #[derive(Deserialize, Debug)]
-pub struct SlashCommandMessagePayload {
+pub struct SlashCommandIncomingMessage {
     pub token: String,
     pub team_id: String,
     pub team_domain: String,
@@ -49,23 +49,51 @@ pub struct SlashCommandMessagePayload {
 /// message types that are currently used in this application.
 #[derive(Deserialize, Debug)]
 #[serde(tag = "type")]
-pub enum SlackMessage {
+pub enum SlackIncomingMessage {
     #[serde(alias = "slash_commands")]
-    SlashCommands(Box<SlackIncomingMessage<SlashCommandMessagePayload>>),
+    SlashCommands(Box<Incoming<SlashCommandIncomingMessage>>),
     #[serde(alias = "disconnect")]
     Disconnect(Box<SlackDisconnectIncomingMessage>),
     #[serde(alias = "hello")]
     Hello(Box<SlackHelloIncomingMessage>),
 }
 
-/// Acknowledgement message that must be sent to Slack after receiving a message
+/// Base type for any outgoing message that can be sent to Slack
 #[derive(Serialize, Debug)]
-pub struct AcknowledgeMessage {
-    pub envelope_id: Uuid,
+#[serde(untagged)]
+pub enum SlackOutgoingMessage {
+    SlashCommand(Outgoing<SlashCommandOutgoingMessage>),
+    Empty(Outgoing<()>),
 }
 
-impl AcknowledgeMessage {
-    pub fn new(envelope_id: Uuid) -> Self {
-        Self { envelope_id }
+/// Acknowledgement message that must be sent to Slack after receiving a message
+#[derive(Serialize, Debug)]
+pub struct Outgoing<Payload> {
+    pub envelope_id: Uuid,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub payload: Option<Payload>
+}
+
+impl<T> Outgoing<T> {
+    pub fn new(envelope_id: Uuid, payload: Option<T>) -> Self {
+        Self { envelope_id, payload }
     }
+}
+
+#[derive(Serialize, Debug)]
+pub struct SlackCommandBlockText {
+    pub r#type: String,
+    pub text: String
+}
+
+#[derive(Serialize, Debug)]
+pub struct SlackCommandBlock {
+    pub r#type: String,
+    pub text: SlackCommandBlockText
+}
+
+#[derive(Serialize, Debug)]
+pub struct SlashCommandOutgoingMessage {
+    pub blocks: Vec<SlackCommandBlock>,
+    pub response_type: String,
 }

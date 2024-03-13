@@ -1,8 +1,8 @@
-use crate::slack::create_subscriber;
-use tokio::join;
+use crate::slack::bootstrap_application;
 
 mod slack;
 mod slack_message;
+mod roulette;
 
 #[tokio::main]
 async fn main() {
@@ -10,7 +10,5 @@ async fn main() {
         .with_max_level(tracing::Level::INFO)
         .with_ansi(true)
         .init();
-    let (_rx, future) = create_subscriber().await;
-
-    let _ = join!(future);
+    bootstrap_application().await;
 }

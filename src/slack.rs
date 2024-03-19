@@ -148,21 +148,20 @@ async fn handle_slash_command(
     message: incoming::Incoming<incoming::SlashCommandIncomingMessage>,
 ) -> outgoing::SlackOutgoingMessage {
     let command_spin_mode = match message.payload.command.as_str() {
-        "/spin" => Some(SpinMode::Any),
-        "/spin-vegan" => Some(SpinMode::Vegan),
-        "/spin-vegetarian" => Some(SpinMode::Vegetarian),
-        _ => None,
-    };
-
-    match command_spin_mode {
-        None => {
+        "/spin" => SpinMode::Any,
+        "/spin-vegan" => SpinMode::Vegan,
+        "/spin-vegetarian" => SpinMode::Vegetarian,
+        _ => {
             tracing::warn!("Received unknown command: {}", message.payload.command);
-            outgoing::SlackOutgoingMessage::Empty(outgoing::Outgoing::new(
+            return outgoing::SlackOutgoingMessage::Empty(outgoing::Outgoing::new(
                 message.envelope_id,
                 None,
             ))
-        }
-        Some(spin_mode) => {
+        },
+    };
+
+    match command_spin_mode {
+        spin_mode => {
             let pizza = get_random_pizza(spin_mode);
             let outgoing_message = outgoing::SlashCommandOutgoingMessage {
                 response_type: "in_channel".to_string(),

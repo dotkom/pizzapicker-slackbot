@@ -1,4 +1,4 @@
-use crate::roulette::get_random_pizza;
+use crate::roulette::{get_random_pizza, SpinMode};
 use crate::slack_message::incoming;
 use crate::slack_message::outgoing;
 use reqwest::header::{HeaderMap, HeaderValue};
@@ -147,9 +147,29 @@ async fn handle_disconnect_message(
 async fn handle_slash_command(
     message: incoming::Incoming<incoming::SlashCommandIncomingMessage>,
 ) -> outgoing::SlackOutgoingMessage {
-    match message.payload.command.as_str() {
+    let command_spin_mode = match message.payload.command.as_str() {
         "/spin" => {
-            let pizza = get_random_pizza();
+            Some(SpinMode::Any)
+        },
+        "/spin-vegan" => {
+            Some(SpinMode::Vegan)
+        },
+        "/spin-vegetarian" => {
+            Some(SpinMode::Vegetarian)
+        },
+        _ => { None }
+    };
+
+    match command_spin_mode {
+        None => {
+            tracing::warn!("Received unknown command: {}", message.payload.command);
+            outgoing::SlackOutgoingMessage::Empty(outgoing::Outgoing::new(
+                message.envelope_id,
+                None,
+            ))
+        },
+        Some(spin_mode) => {
+            let pizza = get_random_pizza(spin_mode);
             let outgoing_message = outgoing::SlashCommandOutgoingMessage {
                 response_type: "in_channel".to_string(),
                 blocks: vec![
@@ -175,13 +195,6 @@ async fn handle_slash_command(
             outgoing::SlackOutgoingMessage::SlashCommand(outgoing::Outgoing::new(
                 message.envelope_id,
                 Some(outgoing_message),
-            ))
-        }
-        _ => {
-            tracing::warn!("Received unknown command: {}", message.payload.command);
-            outgoing::SlackOutgoingMessage::Empty(outgoing::Outgoing::new(
-                message.envelope_id,
-                None,
             ))
         }
     }

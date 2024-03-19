@@ -1,7 +1,7 @@
 # Pizza Picker
 
 We like pizza, and we like gambling. This is a Slack Bot that will give you a random pizza from Pizzabakeren when you
-run `/spin`.
+run `/spin`, `/spin-vegan` and `/spin-vegetarian`
 
 ## How to use
 

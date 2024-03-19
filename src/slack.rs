@@ -148,16 +148,10 @@ async fn handle_slash_command(
     message: incoming::Incoming<incoming::SlashCommandIncomingMessage>,
 ) -> outgoing::SlackOutgoingMessage {
     let command_spin_mode = match message.payload.command.as_str() {
-        "/spin" => {
-            Some(SpinMode::Any)
-        },
-        "/spin-vegan" => {
-            Some(SpinMode::Vegan)
-        },
-        "/spin-vegetarian" => {
-            Some(SpinMode::Vegetarian)
-        },
-        _ => { None }
+        "/spin" => Some(SpinMode::Any),
+        "/spin-vegan" => Some(SpinMode::Vegan),
+        "/spin-vegetarian" => Some(SpinMode::Vegetarian),
+        _ => None,
     };
 
     match command_spin_mode {
@@ -167,7 +161,7 @@ async fn handle_slash_command(
                 message.envelope_id,
                 None,
             ))
-        },
+        }
         Some(spin_mode) => {
             let pizza = get_random_pizza(spin_mode);
             let outgoing_message = outgoing::SlashCommandOutgoingMessage {

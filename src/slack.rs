@@ -156,8 +156,8 @@ async fn handle_slash_command(
             return outgoing::SlackOutgoingMessage::Empty(outgoing::Outgoing::new(
                 message.envelope_id,
                 None,
-            ))
-        },
+            ));
+        }
     };
 
     match command_spin_mode {

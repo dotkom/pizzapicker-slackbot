@@ -1,4 +1,4 @@
-use crate::roulette::get_random_pizza;
+use crate::roulette::{get_random_pizza, SpinMode};
 use crate::slack_message::incoming;
 use crate::slack_message::outgoing;
 use reqwest::header::{HeaderMap, HeaderValue};
@@ -147,42 +147,44 @@ async fn handle_disconnect_message(
 async fn handle_slash_command(
     message: incoming::Incoming<incoming::SlashCommandIncomingMessage>,
 ) -> outgoing::SlackOutgoingMessage {
-    match message.payload.command.as_str() {
-        "/spin" => {
-            let pizza = get_random_pizza();
-            let outgoing_message = outgoing::SlashCommandOutgoingMessage {
-                response_type: "in_channel".to_string(),
-                blocks: vec![
-                    outgoing::SlackCommandBlock {
-                        r#type: "section".to_string(),
-                        text: outgoing::SlackCommandBlockText {
-                            r#type: "mrkdwn".to_string(),
-                            text: format!("Gratulerer, du har fått {}", pizza.name),
-                        },
-                    },
-                    outgoing::SlackCommandBlock {
-                        r#type: "section".to_string(),
-                        text: outgoing::SlackCommandBlockText {
-                            r#type: "mrkdwn".to_string(),
-                            text: format!(
-                                "{} er en pizza med {} ({})",
-                                pizza.name, pizza.description, pizza.extra
-                            ),
-                        },
-                    },
-                ],
-            };
-            outgoing::SlackOutgoingMessage::SlashCommand(outgoing::Outgoing::new(
-                message.envelope_id,
-                Some(outgoing_message),
-            ))
-        }
+    let spin_mode = match message.payload.command.as_str() {
+        "/spin" => SpinMode::Any,
+        "/spin-vegan" => SpinMode::Vegan,
+        "/spin-vegetarian" => SpinMode::Vegetarian,
         _ => {
             tracing::warn!("Received unknown command: {}", message.payload.command);
-            outgoing::SlackOutgoingMessage::Empty(outgoing::Outgoing::new(
+            return outgoing::SlackOutgoingMessage::Empty(outgoing::Outgoing::new(
                 message.envelope_id,
                 None,
-            ))
+            ));
         }
-    }
+    };
+
+    let pizza = get_random_pizza(spin_mode);
+    let outgoing_message = outgoing::SlashCommandOutgoingMessage {
+        response_type: "in_channel".to_string(),
+        blocks: vec![
+            outgoing::SlackCommandBlock {
+                r#type: "section".to_string(),
+                text: outgoing::SlackCommandBlockText {
+                    r#type: "mrkdwn".to_string(),
+                    text: format!("Gratulerer, du har fått {}", pizza.name),
+                },
+            },
+            outgoing::SlackCommandBlock {
+                r#type: "section".to_string(),
+                text: outgoing::SlackCommandBlockText {
+                    r#type: "mrkdwn".to_string(),
+                    text: format!(
+                        "{} er en pizza med {} ({})",
+                        pizza.name, pizza.description, pizza.extra
+                    ),
+                },
+            },
+        ],
+    };
+    outgoing::SlackOutgoingMessage::SlashCommand(outgoing::Outgoing::new(
+        message.envelope_id,
+        Some(outgoing_message),
+    ))
 }

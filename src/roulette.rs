@@ -1,4 +1,5 @@
 use lazy_static::lazy_static;
+use rand::Rng;
 use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
@@ -6,6 +7,8 @@ pub struct PizzaDetail {
     pub name: String,
     pub extra: String,
     pub description: String,
+    pub vegan: bool,
+    pub vegetarian: bool,
 }
 
 lazy_static! {
@@ -19,7 +22,22 @@ fn get_pizzas_from_configuration() -> Vec<PizzaDetail> {
     pizzas
 }
 
-pub fn get_random_pizza() -> PizzaDetail {
-    let random_index = rand::random::<usize>() % PIZZA_OPTIONS.len();
-    PIZZA_OPTIONS[random_index].clone()
+pub enum SpinMode {
+    Vegan,
+    Vegetarian,
+    Any,
+}
+
+pub fn get_random_pizza(mode: SpinMode) -> PizzaDetail {
+    let mut rng = rand::thread_rng();
+    let mut filtered_pizzas: Vec<&PizzaDetail> = PIZZA_OPTIONS
+        .iter()
+        .filter(|p| match mode {
+            SpinMode::Vegan => p.vegan,
+            SpinMode::Vegetarian => p.vegetarian,
+            SpinMode::Any => true,
+        })
+        .collect();
+    let random_index = rng.gen_range(0..filtered_pizzas.len());
+    filtered_pizzas.remove(random_index).clone()
 }

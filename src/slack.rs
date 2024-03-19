@@ -147,7 +147,7 @@ async fn handle_disconnect_message(
 async fn handle_slash_command(
     message: incoming::Incoming<incoming::SlashCommandIncomingMessage>,
 ) -> outgoing::SlackOutgoingMessage {
-    let command_spin_mode = match message.payload.command.as_str() {
+    let spin_mode = match message.payload.command.as_str() {
         "/spin" => SpinMode::Any,
         "/spin-vegan" => SpinMode::Vegan,
         "/spin-vegetarian" => SpinMode::Vegetarian,
@@ -160,35 +160,31 @@ async fn handle_slash_command(
         }
     };
 
-    match command_spin_mode {
-        spin_mode => {
-            let pizza = get_random_pizza(spin_mode);
-            let outgoing_message = outgoing::SlashCommandOutgoingMessage {
-                response_type: "in_channel".to_string(),
-                blocks: vec![
-                    outgoing::SlackCommandBlock {
-                        r#type: "section".to_string(),
-                        text: outgoing::SlackCommandBlockText {
-                            r#type: "mrkdwn".to_string(),
-                            text: format!("Gratulerer, du har fått {}", pizza.name),
-                        },
-                    },
-                    outgoing::SlackCommandBlock {
-                        r#type: "section".to_string(),
-                        text: outgoing::SlackCommandBlockText {
-                            r#type: "mrkdwn".to_string(),
-                            text: format!(
-                                "{} er en pizza med {} ({})",
-                                pizza.name, pizza.description, pizza.extra
-                            ),
-                        },
-                    },
-                ],
-            };
-            outgoing::SlackOutgoingMessage::SlashCommand(outgoing::Outgoing::new(
-                message.envelope_id,
-                Some(outgoing_message),
-            ))
-        }
-    }
+    let pizza = get_random_pizza(spin_mode);
+    let outgoing_message = outgoing::SlashCommandOutgoingMessage {
+        response_type: "in_channel".to_string(),
+        blocks: vec![
+            outgoing::SlackCommandBlock {
+                r#type: "section".to_string(),
+                text: outgoing::SlackCommandBlockText {
+                    r#type: "mrkdwn".to_string(),
+                    text: format!("Gratulerer, du har fått {}", pizza.name),
+                },
+            },
+            outgoing::SlackCommandBlock {
+                r#type: "section".to_string(),
+                text: outgoing::SlackCommandBlockText {
+                    r#type: "mrkdwn".to_string(),
+                    text: format!(
+                        "{} er en pizza med {} ({})",
+                        pizza.name, pizza.description, pizza.extra
+                    ),
+                },
+            },
+        ],
+    };
+    outgoing::SlackOutgoingMessage::SlashCommand(outgoing::Outgoing::new(
+        message.envelope_id,
+        Some(outgoing_message),
+    ))
 }

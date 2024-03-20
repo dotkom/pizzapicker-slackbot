@@ -1,4 +1,4 @@
-use crate::roulette::{get_random_pizza, SpinMode};
+use crate::roulette::{get_random_pizza, get_random_roulette_message, SpinMode};
 use crate::slack_message::incoming;
 use crate::slack_message::outgoing;
 use reqwest::header::{HeaderMap, HeaderValue};
@@ -143,6 +143,10 @@ async fn handle_disconnect_message(
     }
 }
 
+fn mention_user(user_id: String) -> String {
+    format!("<@{}>", user_id)
+}
+
 #[tracing::instrument]
 async fn handle_slash_command(
     message: incoming::Incoming<incoming::SlashCommandIncomingMessage>,
@@ -161,6 +165,9 @@ async fn handle_slash_command(
     };
 
     let pizza = get_random_pizza(spin_mode);
+    let mention = mention_user(message.payload.user_id);
+    let roulette_message = get_random_roulette_message();
+
     let outgoing_message = outgoing::SlashCommandOutgoingMessage {
         response_type: "in_channel".to_string(),
         blocks: vec![
@@ -168,17 +175,14 @@ async fn handle_slash_command(
                 r#type: "section".to_string(),
                 text: outgoing::SlackCommandBlockText {
                     r#type: "mrkdwn".to_string(),
-                    text: format!("Gratulerer, du har fått {}", pizza.name),
+                    text: format!("{} {} *{}* 🎉", mention, roulette_message, pizza.name),
                 },
             },
             outgoing::SlackCommandBlock {
                 r#type: "section".to_string(),
                 text: outgoing::SlackCommandBlockText {
                     r#type: "mrkdwn".to_string(),
-                    text: format!(
-                        "{} er en pizza med {} ({})",
-                        pizza.name, pizza.description, pizza.extra
-                    ),
+                    text: format!("Pizzaen består av {} ({})", pizza.description, pizza.extra),
                 },
             },
         ],

@@ -1,4 +1,4 @@
-use crate::roulette::{get_random_pizza, get_random_roulette_message, SpinMode};
+use crate::roulette::{get_random_fortune_phrase, get_random_pizza, RouletteFilter};
 use crate::slack_message::incoming;
 use crate::slack_message::outgoing;
 use reqwest::header::{HeaderMap, HeaderValue};
@@ -152,9 +152,9 @@ async fn handle_slash_command(
     message: incoming::Incoming<incoming::SlashCommandIncomingMessage>,
 ) -> outgoing::SlackOutgoingMessage {
     let spin_mode = match message.payload.command.as_str() {
-        "/spin" => SpinMode::Any,
-        "/spin-vegan" => SpinMode::Vegan,
-        "/spin-vegetarian" => SpinMode::Vegetarian,
+        "/spin" => RouletteFilter::All,
+        "/spin-vegan" => RouletteFilter::Vegan,
+        "/spin-vegetarian" => RouletteFilter::Vegetarian,
         _ => {
             tracing::warn!("Received unknown command: {}", message.payload.command);
             return outgoing::SlackOutgoingMessage::Empty(outgoing::Outgoing::new(
@@ -166,7 +166,7 @@ async fn handle_slash_command(
 
     let pizza = get_random_pizza(spin_mode);
     let mention = mention_user(message.payload.user_id);
-    let roulette_message = get_random_roulette_message();
+    let fortune_phrase = get_random_fortune_phrase();
 
     let outgoing_message = outgoing::SlashCommandOutgoingMessage {
         response_type: "in_channel".to_string(),
@@ -175,7 +175,10 @@ async fn handle_slash_command(
                 r#type: "section".to_string(),
                 text: outgoing::SlackCommandBlockText {
                     r#type: "mrkdwn".to_string(),
-                    text: format!("{} {} *{}* 🎉", mention, roulette_message, pizza.name),
+                    text: format!(
+                        "{} {} *{}* 🎉",
+                        mention, fortune_phrase.phrase, pizza.name
+                    ),
                 },
             },
             outgoing::SlackCommandBlock {

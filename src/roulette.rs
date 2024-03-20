@@ -1,22 +1,22 @@
 use lazy_static::lazy_static;
-use rand::Rng;
+use rand::prelude::SliceRandom;
 use serde::{de::DeserializeOwned, Deserialize};
 
 enum JsonFile {
+    FortunePhrase,
     Pizza,
-    Roulette,
 }
 
-pub enum SpinMode {
+pub enum RouletteFilter {
+    All,
     Vegan,
     Vegetarian,
-    Any,
 }
 
 trait Deserializable: DeserializeOwned {}
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct PizzaDetail {
+pub struct PizzaEntry {
     pub name: String,
     pub extra: String,
     pub description: String,
@@ -25,44 +25,49 @@ pub struct PizzaDetail {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct RouletteMessage {
-    phrase: String,
+pub struct FortunePhraseEntry {
+    pub phrase: String,
 }
 
-impl Deserializable for PizzaDetail {}
-impl Deserializable for RouletteMessage {}
+impl Deserializable for PizzaEntry {}
+impl Deserializable for FortunePhraseEntry {}
 
 lazy_static! {
-    static ref PIZZA_OPTIONS: Vec<PizzaDetail> = load_from_json(JsonFile::Pizza);
-    static ref ROULETTE_MESSAGES: Vec<RouletteMessage> = load_from_json(JsonFile::Roulette);
+    static ref PIZZAS: Vec<PizzaEntry> = load_from_json(JsonFile::Pizza);
+    static ref FORTUNE_PHRASES: Vec<FortunePhraseEntry> = load_from_json(JsonFile::FortunePhrase);
 }
 
 fn load_from_json<T: Deserializable>(file: JsonFile) -> Vec<T> {
     let json = match file {
-        JsonFile::Pizza => include_str!("../config/pizza.json"),
-        JsonFile::Roulette => include_str!("../config/roulette.json"),
+        JsonFile::FortunePhrase => include_str!("../config/fortune_phrases.json"),
+        JsonFile::Pizza => include_str!("../config/pizzas.json"),
     };
-    let result: Vec<T> = serde_json::from_str(json).expect("Failed to parse JSON configuration");
-    result
+    serde_json::from_str(json).expect("Failed to parse JSON configuration")
 }
 
-pub fn get_random_pizza(mode: SpinMode) -> PizzaDetail {
+fn get_random_element<T>(source: Vec<T>) -> Option<T>
+where
+    T: Clone,
+{
     let mut rng = rand::thread_rng();
-    let mut filtered_pizzas: Vec<&PizzaDetail> = PIZZA_OPTIONS
+    source.choose(&mut rng).cloned()
+}
+
+pub fn get_random_pizza(filter: RouletteFilter) -> PizzaEntry {
+    let filtered_pizzas: Vec<PizzaEntry> = PIZZAS
         .iter()
-        .filter(|p| match mode {
-            SpinMode::Vegan => p.vegan,
-            SpinMode::Vegetarian => p.vegetarian,
-            SpinMode::Any => true,
+        .filter(|pizza_entry| match filter {
+            RouletteFilter::All => true,
+            RouletteFilter::Vegan => pizza_entry.vegan,
+            RouletteFilter::Vegetarian => pizza_entry.vegetarian,
         })
+        .cloned()
         .collect();
-    let random_index = rng.gen_range(0..filtered_pizzas.len());
-    filtered_pizzas.remove(random_index).clone()
+
+    get_random_element(filtered_pizzas).expect("PizzaEntry vector is empty")
 }
 
-pub fn get_random_roulette_message() -> String {
-    let mut rng = rand::thread_rng();
-    let phrases = ROULETTE_MESSAGES.to_vec();
-    let random_index = rng.gen_range(0..phrases.len());
-    phrases.get(random_index).unwrap().phrase.clone()
+pub fn get_random_fortune_phrase() -> FortunePhraseEntry {
+    let phrases = FORTUNE_PHRASES.to_vec();
+    get_random_element(phrases).expect("FortunePhrases vector is empty")
 }

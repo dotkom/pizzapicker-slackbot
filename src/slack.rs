@@ -1,10 +1,60 @@
 use crate::roulette::{get_random_pizza, get_random_roulette_message, SpinMode};
 use crate::slack_message::incoming;
 use crate::slack_message::outgoing;
+use chrono::{Duration, Utc};
 use reqwest::header::{HeaderMap, HeaderValue};
 use reqwest::{Client, Result};
+use std::collections::HashMap;
 use tungstenite::stream::MaybeTlsStream;
 use tungstenite::{Message, WebSocket};
+
+#[derive(Debug)]
+struct Entry {
+    count: u32,
+    last: chrono::DateTime<Utc>,
+}
+
+#[derive(Debug)]
+struct Stats(HashMap<String, Entry>);
+
+impl Stats {
+    pub fn new() -> Self {
+        Self(HashMap::new())
+    }
+
+    pub fn entry(&self, user: &str) -> Option<&Entry> {
+        let entry = self.0.get(user)?;
+        if Utc::now().signed_duration_since(entry.last) <= Duration::try_days(2)? {
+            Some(entry)
+        } else {
+            None
+        }
+    }
+
+    pub fn spin_counts(&self, user: &str) -> u32 {
+        if let Some(entry) = self.entry(user) {
+            entry.count
+        } else {
+            0
+        }
+    }
+
+    pub fn add_spin(&mut self, user: &str) {
+        let count = if let Some(current) = self.entry(user) {
+            current.count + 1
+        } else {
+            1
+        };
+
+        self.0.insert(
+            user.to_string(),
+            Entry {
+                count,
+                last: Utc::now(),
+            },
+        );
+    }
+}
 
 /// Get the websocket endpoint for the slack bot
 ///
@@ -65,6 +115,8 @@ pub async fn bootstrap_application() -> () {
         .expect("Failed to get websocket endpoint");
     let mut socket = establish_websocket_connection(&wss_endpoint);
 
+    let mut stats = Stats::new();
+
     // Spawn a worker thread to read messages from the channel and translate them into messages
     // to be sent across the oneshot channel
     loop {
@@ -110,12 +162,15 @@ pub async fn bootstrap_application() -> () {
             }
             incoming::SlackIncomingMessage::SlashCommands(message) => {
                 tracing::info!("Received slash command: {:?}", message);
-                let response = handle_slash_command(*message).await;
-                let json = serde_json::to_string(&response).expect("Failed to serialize response");
-                tracing::info!("Sending response to Slack: {}", json);
-                socket
-                    .send(Message::Text(json))
-                    .expect("Failed to send response to Slack");
+                let response = handle_slash_command(*message, &mut stats).await;
+                if let Some(response) = response {
+                    let json =
+                        serde_json::to_string(&response).expect("Failed to serialize response");
+                    tracing::info!("Sending response to Slack: {}", json);
+                    socket
+                        .send(Message::Text(json))
+                        .expect("Failed to send response to Slack");
+                }
             }
             incoming::SlackIncomingMessage::Hello(_) => {
                 tracing::info!("Received hello message from Slack")
@@ -143,30 +198,35 @@ async fn handle_disconnect_message(
     }
 }
 
-fn mention_user(user_id: String) -> String {
+fn mention_user(user_id: &str) -> String {
     format!("<@{}>", user_id)
 }
 
 #[tracing::instrument]
 async fn handle_slash_command(
     message: incoming::Incoming<incoming::SlashCommandIncomingMessage>,
-) -> outgoing::SlackOutgoingMessage {
-    let spin_mode = match message.payload.command.as_str() {
-        "/spin" => SpinMode::Any,
-        "/spin-vegan" => SpinMode::Vegan,
-        "/spin-vegetarian" => SpinMode::Vegetarian,
-        _ => {
-            tracing::warn!("Received unknown command: {}", message.payload.command);
-            return outgoing::SlackOutgoingMessage::Empty(outgoing::Outgoing::new(
-                message.envelope_id,
-                None,
-            ));
-        }
-    };
+    stats: &mut Stats,
+) -> Option<outgoing::SlackOutgoingMessage> {
+    let spin_mode = SpinMode::from_command(&message.payload.command).or({
+        tracing::warn!("Received unknown command: {}", message.payload.command);
+        None
+    })?;
 
     let pizza = get_random_pizza(spin_mode);
-    let mention = mention_user(message.payload.user_id);
+    let mention = mention_user(&message.payload.user_id);
     let roulette_message = get_random_roulette_message();
+
+    let spins = stats.spin_counts(&message.payload.user_id);
+    let spin_msg = match spins {
+        0 => "Du har *én gratis* respin igjen.".to_string(),
+        1 => "Du har *ingen gratis* respins igjen.".to_string(),
+        x => format!(
+            "Du har spunnet {} ganger. Straffer: {}",
+            x + 1,
+            "🍺".repeat((x - 1) as usize)
+        ),
+    };
+    stats.add_spin(&message.payload.user_id);
 
     let outgoing_message = outgoing::SlashCommandOutgoingMessage {
         response_type: "in_channel".to_string(),
@@ -185,10 +245,17 @@ async fn handle_slash_command(
                     text: format!("Pizzaen består av {} ({})", pizza.description, pizza.extra),
                 },
             },
+            outgoing::SlackCommandBlock {
+                r#type: "section".to_string(),
+                text: outgoing::SlackCommandBlockText {
+                    r#type: "mrkdwn".to_string(),
+                    text: spin_msg,
+                },
+            },
         ],
     };
-    outgoing::SlackOutgoingMessage::SlashCommand(outgoing::Outgoing::new(
-        message.envelope_id,
-        Some(outgoing_message),
+
+    Some(outgoing::SlackOutgoingMessage::SlashCommand(
+        outgoing::Outgoing::new(message.envelope_id, Some(outgoing_message)),
     ))
 }

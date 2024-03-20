@@ -1,5 +1,5 @@
 use lazy_static::lazy_static;
-use rand::prelude::SliceRandom;
+use rand::seq::SliceRandom;
 use serde::{de::DeserializeOwned, Deserialize};
 
 enum JsonFile {
@@ -42,6 +42,7 @@ fn load_from_json<T: Deserializable>(file: JsonFile) -> Vec<T> {
         JsonFile::FortunePhrase => include_str!("../config/fortune_phrases.json"),
         JsonFile::Pizza => include_str!("../config/pizzas.json"),
     };
+
     serde_json::from_str(json).expect("Failed to parse JSON configuration")
 }
 

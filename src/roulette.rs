@@ -13,6 +13,17 @@ pub enum SpinMode {
     Any,
 }
 
+impl SpinMode {
+    pub fn from_command(s: &str) -> Option<Self> {
+        match s {
+            "/spin" => Some(SpinMode::Any),
+            "/spin-vegan" => Some(SpinMode::Vegan),
+            "/spin-vegetarian" => Some(SpinMode::Vegetarian),
+            _ => None,
+        }
+    }
+}
+
 trait Deserializable: DeserializeOwned {}
 
 #[derive(Debug, Clone, Deserialize)]

@@ -14,7 +14,7 @@
         "vegan": true
     },
     {
-        "description": "ost, tomatsaus og oregano",
+        "description": "ost, tomatsaus og oregano.",
         "extra": "Allergener: hvete, melk, selleri",
         "name": "101 DEN SINGLE",
         "vegetarian": true,
@@ -182,8 +182,8 @@
         "vegan": false
     },
     {
-        "description": "ost, tomatsaus med chili, kebabkj\u00f8tt, mais, r\u00f8dl\u00f8k og jalape\u00f1o",
-        "extra": "Toppes med kebab hvitl\u00f8ksdressing.",
+        "description": "ost, tomatsaus med chili, kebabkj\u00f8tt, mais, r\u00f8dl\u00f8k og jalape\u00f1o.",
+        "extra": "Toppes med kebab hvitl\u00f8ksdressing",
         "name": "19 KEBABEN",
         "vegetarian": false,
         "vegan": false
@@ -231,7 +231,7 @@
         "vegan": false
     },
     {
-        "description": "ost, tomatsaus, pepperoni, skinke og ananas",
+        "description": "ost, tomatsaus, pepperoni, skinke og ananas.",
         "extra": "Allergener: hvete, melk, selleri",
         "name": "26 TOSPANNET",
         "vegetarian": false,
@@ -259,7 +259,7 @@
         "vegan": false
     },
     {
-        "description": "ost, hvit saus, sterk og marinert kylling, pepperoni, r\u00f8dl\u00f8k, chili og v\u00e5rl\u00f8k",
+        "description": "ost, hvit saus, sterk og marinert kylling, pepperoni, r\u00f8dl\u00f8k, chili og v\u00e5rl\u00f8k.",
         "extra": "Allergener: hvete, melk, sennep, egg",
         "name": "51 T\u00d8FFINGEN",
         "vegetarian": false,

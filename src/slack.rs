@@ -218,7 +218,7 @@ async fn handle_slash_command(
 
     let spins = stats.spin_counts(&message.payload.user_id);
     let spin_msg = match spins {
-        0 => "Du har *en gratis* respin igjen.".to_string(),
+        0 => "Du har *én gratis* respin igjen.".to_string(),
         1 => "Du har *ingen gratis* respins igjen.".to_string(),
         x => format!(
             "Du har spunnet {} ganger. Straffer: {}",

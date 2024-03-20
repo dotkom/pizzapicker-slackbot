@@ -62,7 +62,7 @@ pub fn get_random_pizza(mode: SpinMode) -> PizzaDetail {
 
 pub fn get_random_roulette_message() -> String {
     let mut rng = rand::thread_rng();
-    let phrases: Vec<RouletteMessage> = ROULETTE_MESSAGES.to_vec();
+    let phrases = ROULETTE_MESSAGES.to_vec();
     let random_index = rng.gen_range(0..phrases.len());
     phrases.get(random_index).unwrap().phrase.clone()
 }

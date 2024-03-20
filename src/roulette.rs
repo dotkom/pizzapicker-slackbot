@@ -1,6 +1,19 @@
 use lazy_static::lazy_static;
 use rand::Rng;
-use serde::Deserialize;
+use serde::{de::DeserializeOwned, Deserialize};
+
+enum JsonFile {
+    Pizza,
+    Roulette,
+}
+
+pub enum SpinMode {
+    Vegan,
+    Vegetarian,
+    Any,
+}
+
+trait Deserializable: DeserializeOwned {}
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct PizzaDetail {
@@ -11,21 +24,26 @@ pub struct PizzaDetail {
     pub vegetarian: bool,
 }
 
+#[derive(Debug, Clone, Deserialize)]
+pub struct RouletteMessage {
+    phrase: String,
+}
+
+impl Deserializable for PizzaDetail {}
+impl Deserializable for RouletteMessage {}
+
 lazy_static! {
-    static ref PIZZA_OPTIONS: Vec<PizzaDetail> = get_pizzas_from_configuration();
+    static ref PIZZA_OPTIONS: Vec<PizzaDetail> = load_from_json(JsonFile::Pizza);
+    static ref ROULETTE_MESSAGES: Vec<RouletteMessage> = load_from_json(JsonFile::Roulette);
 }
 
-fn get_pizzas_from_configuration() -> Vec<PizzaDetail> {
-    let json = include_str!("../config/pizza.json");
-    let pizzas: Vec<PizzaDetail> =
-        serde_json::from_str(json).expect("Failed to parse pizza configuration");
-    pizzas
-}
-
-pub enum SpinMode {
-    Vegan,
-    Vegetarian,
-    Any,
+fn load_from_json<T: Deserializable>(file: JsonFile) -> Vec<T> {
+    let json = match file {
+        JsonFile::Pizza => include_str!("../config/pizza.json"),
+        JsonFile::Roulette => include_str!("../config/roulette.json"),
+    };
+    let result: Vec<T> = serde_json::from_str(json).expect("Failed to parse pizza configuration");
+    result
 }
 
 pub fn get_random_pizza(mode: SpinMode) -> PizzaDetail {
@@ -40,4 +58,11 @@ pub fn get_random_pizza(mode: SpinMode) -> PizzaDetail {
         .collect();
     let random_index = rng.gen_range(0..filtered_pizzas.len());
     filtered_pizzas.remove(random_index).clone()
+}
+
+pub fn get_random_roulette_message() -> String {
+    let mut rng = rand::thread_rng();
+    let phrases: Vec<RouletteMessage> = ROULETTE_MESSAGES.to_vec();
+    let random_index = rng.gen_range(0..phrases.len());
+    phrases.get(random_index).unwrap().phrase.clone()
 }

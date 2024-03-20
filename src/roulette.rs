@@ -42,7 +42,7 @@ fn load_from_json<T: Deserializable>(file: JsonFile) -> Vec<T> {
         JsonFile::Pizza => include_str!("../config/pizza.json"),
         JsonFile::Roulette => include_str!("../config/roulette.json"),
     };
-    let result: Vec<T> = serde_json::from_str(json).expect("Failed to parse pizza configuration");
+    let result: Vec<T> = serde_json::from_str(json).expect("Failed to parse JSON configuration");
     result
 }
 

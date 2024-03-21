@@ -175,10 +175,7 @@ async fn handle_slash_command(
                 r#type: "section".to_string(),
                 text: outgoing::SlackCommandBlockText {
                     r#type: "mrkdwn".to_string(),
-                    text: format!(
-                        "{} {} *{}* 🎉",
-                        mention, fortune_phrase.phrase, pizza.name
-                    ),
+                    text: format!("{} {} *{}* 🎉", mention, fortune_phrase.phrase, pizza.name),
                 },
             },
             outgoing::SlackCommandBlock {

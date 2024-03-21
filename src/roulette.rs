@@ -8,8 +8,6 @@ pub enum RouletteFilter {
     Vegetarian,
 }
 
-trait Deserializable: DeserializeOwned {}
-
 #[derive(Debug, Clone, Deserialize)]
 pub struct PizzaEntry {
     pub name: String,
@@ -24,28 +22,22 @@ pub struct FortunePhraseEntry {
     pub phrase: String,
 }
 
-impl Deserializable for PizzaEntry {}
-impl Deserializable for FortunePhraseEntry {}
-
 lazy_static! {
     static ref PIZZAS: Vec<PizzaEntry> = load_json(include_str!("../config/pizzas.json"));
     static ref FORTUNE_PHRASES: Vec<FortunePhraseEntry> =
         load_json(include_str!("../config/fortune_phrases.json"));
 }
 
-fn load_json<T: Deserializable>(include_str: &str) -> Vec<T> {
+fn load_json<T: DeserializeOwned>(include_str: &str) -> Vec<T> {
     serde_json::from_str(include_str).expect("Failed to parse JSON configuration")
 }
 
-fn get_random_element<T>(source: &[T]) -> Option<&T>
-where
-    T: Clone,
-{
+fn get_random_element<T>(source: &[T]) -> Option<&T> {
     let mut rng = rand::thread_rng();
     source.choose(&mut rng)
 }
 
-pub fn get_random_pizza<'a>(filter: RouletteFilter) -> &'a PizzaEntry {
+pub fn get_random_pizza(filter: RouletteFilter) -> &'static PizzaEntry {
     let filtered_pizzas: Vec<&PizzaEntry> = PIZZAS
         .iter()
         .filter(|pizza_entry| match filter {
@@ -58,6 +50,6 @@ pub fn get_random_pizza<'a>(filter: RouletteFilter) -> &'a PizzaEntry {
     get_random_element(&filtered_pizzas).expect("PizzaEntry vector is empty")
 }
 
-pub fn get_random_fortune_phrase<'a>() -> &'a FortunePhraseEntry {
+pub fn get_random_fortune_phrase() -> &'static FortunePhraseEntry {
     get_random_element(&FORTUNE_PHRASES).expect("FortunePhrases vector is empty")
 }

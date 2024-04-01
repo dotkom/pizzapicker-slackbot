@@ -12,4 +12,6 @@ RUN apt-get update && apt-get install -y ca-certificates libssl3
 
 COPY --from=builder ./target/release/pizzapicker ./target/release/pizzapicker
 
+EXPOSE 3000
+
 CMD ["/target/release/pizzapicker"]

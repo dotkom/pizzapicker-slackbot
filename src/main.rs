@@ -1,5 +1,5 @@
-use crate::healthcheck::build_healthcheck_server;
-use crate::slack::build_websocket_client;
+use crate::healthcheck::start_http_server;
+use crate::slack::start_websocket_client;
 
 mod healthcheck;
 mod roulette;
@@ -13,10 +13,10 @@ async fn main() {
         .with_ansi(true)
         .init();
     let app_handle = tokio::spawn(async move {
-        build_websocket_client().await;
+        start_websocket_client().await;
     });
     let http_handle = tokio::spawn(async move {
-        build_healthcheck_server()
+        start_http_server()
             .await
             .expect("Failed to start HTTP server");
     });

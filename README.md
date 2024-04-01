@@ -25,6 +25,9 @@ cargo run
 # Docker
 docker build -t pizzapicker:latest .
 docker run -e SLACK_APP_TOKEN=<your_token> pizzapicker:latest
+
+docker tag pizzapicker:latest <aws_account_id>.dkr.ecr.eu-north-1.amazonaws.com/pizzapicker-prod:latest
+docker push <aws_account_id>.dkr.ecr.eu-north-1.amazonaws.com/pizzapicker-prod:latest
 ```
 
 ## License

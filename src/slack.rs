@@ -57,7 +57,7 @@ fn create_slack_client() -> Client {
 /// This function will automatically reconnect to the websocket if the server sends
 /// a disconnect message.
 #[tracing::instrument]
-pub async fn build_websocket_client() -> () {
+pub async fn start_websocket_client() -> () {
     let client = create_slack_client();
     // Perform the initial websocket connection
     let wss_endpoint = get_websocket_endpoint(&client)

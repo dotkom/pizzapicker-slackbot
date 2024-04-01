@@ -16,3 +16,4 @@ tungstenite = { version = "0.21.0", features = ["handshake", "native-tls"]}
 uuid = { version = "1.7.0", features = ["v4", "serde"] }
 rand = "0.8.5"
 lazy_static = "1.4.0"
+futures = "0.3.30"

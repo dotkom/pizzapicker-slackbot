@@ -12,7 +12,7 @@ mod slack_message;
 async fn main() {
     tracing_subscriber::registry()
         .with(tracing_subscriber::fmt::layer().with_ansi(std::env::var("TERM").is_ok()))
-        .with(tracing_subscriber::EnvFilter::from_env("PIZZAPICKER_LOG"))
+        .with(tracing_subscriber::EnvFilter::from_default_env())
         .init();
     let app_handle = tokio::spawn(async move {
         start_websocket_client().await;

@@ -5,7 +5,7 @@ use serde::{de::DeserializeOwned, Deserialize};
 pub enum SpinMode {
     Any,
     Vegan,
-    Vegetarian
+    Vegetarian,
 }
 
 impl SpinMode {

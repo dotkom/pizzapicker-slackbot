@@ -12,8 +12,8 @@ pub async fn start_http_server() -> tokio::io::Result<()> {
         let (mut socket, _) = listener.accept().await?;
         tokio::spawn(async move {
             match socket.peer_addr() {
-                Ok(peer_addr) => tracing::info!("Handling connection from {}", peer_addr),
-                Err(err) => tracing::info!("Handling connection from unknown peer {}", err),
+                Ok(peer_addr) => tracing::debug!("Handling connection from {}", peer_addr),
+                Err(err) => tracing::debug!("Handling connection from unknown peer {}", err),
             }
             let response = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHealthcheck OK";
             let _ = socket.write_all(response.as_bytes()).await;

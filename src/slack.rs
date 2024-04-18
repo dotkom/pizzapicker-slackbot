@@ -128,6 +128,8 @@ async fn handle_disconnect_message(
     message: incoming::SlackDisconnectIncomingMessage,
     client: &Client,
 ) -> Option<SlackWebSocket> {
+    tracing::info!("Received disconnect message: {:?}", message.reason.as_str());
+
     match message.reason.as_str() {
         "link_disabled" => {
             tracing::info!("Link disabled, stopping bot");

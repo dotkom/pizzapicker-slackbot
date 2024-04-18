@@ -91,7 +91,6 @@ pub mod outgoing {
     #[serde(untagged)]
     pub enum SlackOutgoingMessage {
         SlashCommand(Outgoing<SlashCommandOutgoingMessage>),
-        Empty(Outgoing<()>),
     }
 
     /// Acknowledgement message that must be sent to Slack after receiving a message

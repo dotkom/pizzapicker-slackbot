@@ -2,10 +2,21 @@ use lazy_static::lazy_static;
 use rand::seq::SliceRandom;
 use serde::{de::DeserializeOwned, Deserialize};
 
-pub enum RouletteFilter {
-    All,
+pub enum SpinMode {
+    Any,
     Vegan,
-    Vegetarian,
+    Vegetarian
+}
+
+impl SpinMode {
+    pub fn from_command(s: &str) -> Option<Self> {
+        match s {
+            "/spin" => Some(SpinMode::Any),
+            "/spin-vegan" => Some(SpinMode::Vegan),
+            "/spin-vegetarian" => Some(SpinMode::Vegetarian),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -37,13 +48,13 @@ fn get_random_element<T>(source: &[T]) -> Option<&T> {
     source.choose(&mut rng)
 }
 
-pub fn get_random_pizza(filter: RouletteFilter) -> &'static PizzaEntry {
+pub fn get_random_pizza(filter: SpinMode) -> &'static PizzaEntry {
     let filtered_pizzas: Vec<&PizzaEntry> = PIZZAS
         .iter()
         .filter(|pizza_entry| match filter {
-            RouletteFilter::All => true,
-            RouletteFilter::Vegan => pizza_entry.vegan,
-            RouletteFilter::Vegetarian => pizza_entry.vegetarian,
+            SpinMode::Any => true,
+            SpinMode::Vegan => pizza_entry.vegan,
+            SpinMode::Vegetarian => pizza_entry.vegetarian,
         })
         .collect();
 

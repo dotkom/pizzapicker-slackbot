@@ -120,6 +120,11 @@ pub async fn start_websocket_client() -> () {
     // Spawn a worker thread to read messages from the channel and translate them into messages
     // to be sent across the oneshot channel
     loop {
+        if !socket.can_read() || !socket.can_write() {
+            tracing::warn!("Websocket is not ready to read or write, sleeping for 5 seconds");
+            tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+            continue;
+        }
         let msg = socket.read().expect("Failed to read from websocket");
         // The Slack API promises that messages are sent as JSON, so we can safely assume that
         // the message is a JSON string

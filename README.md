@@ -23,7 +23,9 @@ cargo build --release
 cargo run
 
 # Docker
-docker build -t pizzapicker:latest .
+# If you are on linux/arm64, you can build the image right away. Other users need to install qemu-user-static and
+# binfmt-support to build multi-arch images. Cross compilation can take a very long time.
+docker buildx build --platform=linux/arm64 -t pizzapicker:latest .
 docker run -e SLACK_APP_TOKEN=<your_token> pizzapicker:latest
 
 docker tag pizzapicker:latest <aws_account_id>.dkr.ecr.eu-north-1.amazonaws.com/pizzapicker-prod:latest

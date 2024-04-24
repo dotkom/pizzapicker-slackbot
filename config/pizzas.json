@@ -1,19 +1,5 @@
 [
     {
-        "description": "vegansk osteerstatning, tomatsaus - og bare det!\u00a0P\u00e5 30 cm melke-og glutenfri bunn.",
-        "extra": "Allergener: selleri",
-        "name": "V-GF01 DEN ENKLE VEGANSK",
-        "vegetarian": true,
-        "vegan": true
-    },
-    {
-        "description": "vegansk osteerstating, tomatsaus, sjampinjong, r\u00f8d paprika, gul paprika og v\u00e5rl\u00f8k. P\u00e5 30 cm melke-og glutenfri bunn.",
-        "extra": "Allergener: selleri",
-        "name": "V-GF18 VEGETARIANEREN VEGANSK",
-        "vegetarian": true,
-        "vegan": true
-    },
-    {
         "description": "ost, tomatsaus - og bare det!",
         "extra": "Allergener: hvete, melk, selleri",
         "name": "01 DEN ENKLE",

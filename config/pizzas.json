@@ -14,55 +14,6 @@
         "vegan": true
     },
     {
-        "description": "ost, tomatsaus og oregano.",
-        "extra": "Allergener: hvete, melk, selleri",
-        "name": "101 DEN SINGLE",
-        "vegetarian": true,
-        "vegan": false
-    },
-    {
-        "description": "ost, tomatsaus, pepperoni, r\u00f8dl\u00f8k, r\u00f8d paprika, gul paprika og oregano.",
-        "extra": "Allergener: hvete, melk, selleri",
-        "name": "102 VINNEREN",
-        "vegetarian": false,
-        "vegan": false
-    },
-    {
-        "description": "ost, tomatsaus, skinke, sjampinjong, og oregano.",
-        "extra": "Allergener: hvete, melk, selleri",
-        "name": "103 FAVORITTEN",
-        "vegetarian": false,
-        "vegan": false
-    },
-    {
-        "description": "ost, tomatsaus, chorizo, r\u00f8dl\u00f8k, pesto og oregano.",
-        "extra": "Allergener: hvete, melk, selleri",
-        "name": "104 OPPLEVELSEN",
-        "vegetarian": false,
-        "vegan": false
-    },
-    {
-        "description": "ost, tomatsaus, marinert kylling, pepperoni, r\u00f8dl\u00f8k og oregano.",
-        "extra": "Allergener: hvete, melk, selleri",
-        "name": "106 BLANDINGEN",
-        "vegetarian": false,
-        "vegan": false
-    },
-    {
-        "description": "ost, tomatsaus, marinert biff, r\u00f8dl\u00f8k, sjampinjong og oregano.",
-        "extra": "Allergener: hvete, melk, selleri",
-        "name": "107 L\u00d8SNINGEN",
-        "vegetarian": false,
-        "vegan": false
-    },
-    {
-        "description": "ost, tomatsaus, r\u00f8dl\u00f8k, sjampinjong, gul paprika, v\u00e5rl\u00f8k og oregano.",
-        "extra": "Allergener: hvete, melk, selleri",
-        "name": "108 ENTUSIASTEN",
-        "vegetarian": true,
-        "vegan": false
-    },
-    {
         "description": "ost, tomatsaus - og bare det!",
         "extra": "Allergener: hvete, melk, selleri",
         "name": "01 DEN ENKLE",

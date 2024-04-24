@@ -4,272 +4,168 @@
         "extra": "Allergener: selleri",
         "name": "V-GF01 DEN ENKLE VEGANSK",
         "vegetarian": true,
-        "vegan": true
+        "vegan": true,
+        "personal": true
     },
     {
         "description": "vegansk osteerstating, tomatsaus, sjampinjong, r\u00f8d paprika, gul paprika og v\u00e5rl\u00f8k. P\u00e5 30 cm melke-og glutenfri bunn.",
         "extra": "Allergener: selleri",
         "name": "V-GF18 VEGETARIANEREN VEGANSK",
         "vegetarian": true,
-        "vegan": true
-    },
-    {
-        "description": "ost, tomatsaus og oregano.",
-        "extra": "Allergener: hvete, melk, selleri",
-        "name": "101 DEN SINGLE",
-        "vegetarian": true,
-        "vegan": false
-    },
-    {
-        "description": "ost, tomatsaus, pepperoni, r\u00f8dl\u00f8k, r\u00f8d paprika, gul paprika og oregano.",
-        "extra": "Allergener: hvete, melk, selleri",
-        "name": "102 VINNEREN",
-        "vegetarian": false,
-        "vegan": false
-    },
-    {
-        "description": "ost, tomatsaus, skinke, sjampinjong, og oregano.",
-        "extra": "Allergener: hvete, melk, selleri",
-        "name": "103 FAVORITTEN",
-        "vegetarian": false,
-        "vegan": false
-    },
-    {
-        "description": "ost, tomatsaus, chorizo, r\u00f8dl\u00f8k, pesto og oregano.",
-        "extra": "Allergener: hvete, melk, selleri",
-        "name": "104 OPPLEVELSEN",
-        "vegetarian": false,
-        "vegan": false
-    },
-    {
-        "description": "ost, tomatsaus, marinert kylling, pepperoni, r\u00f8dl\u00f8k og oregano.",
-        "extra": "Allergener: hvete, melk, selleri",
-        "name": "106 BLANDINGEN",
-        "vegetarian": false,
-        "vegan": false
-    },
-    {
-        "description": "ost, tomatsaus, marinert biff, r\u00f8dl\u00f8k, sjampinjong og oregano.",
-        "extra": "Allergener: hvete, melk, selleri",
-        "name": "107 L\u00d8SNINGEN",
-        "vegetarian": false,
-        "vegan": false
-    },
-    {
-        "description": "ost, tomatsaus, r\u00f8dl\u00f8k, sjampinjong, gul paprika, v\u00e5rl\u00f8k og oregano.",
-        "extra": "Allergener: hvete, melk, selleri",
-        "name": "108 ENTUSIASTEN",
-        "vegetarian": true,
-        "vegan": false
+        "vegan": true,
+        "personal": true
     },
     {
         "description": "ost, tomatsaus - og bare det!",
         "extra": "Allergener: hvete, melk, selleri",
         "name": "01 DEN ENKLE",
-        "vegetarian": true,
-        "vegan": false
+        "vegetarian": true
     },
     {
         "description": "ost, tomatsaus, skinke og sjampinjong.",
         "extra": "Allergener: hvete, melk, selleri",
-        "name": "02 KVESS",
-        "vegetarian": false,
-        "vegan": false
+        "name": "02 KVESS"
     },
     {
         "description": "ost, tomatsaus, kj\u00f8ttdeig og r\u00f8d paprika.",
         "extra": "Allergener: hvete, melk, selleri",
-        "name": "03 DR\u00d8MMEN",
-        "vegetarian": false,
-        "vegan": false
+        "name": "03 DR\u00d8MMEN"
     },
     {
         "description": "ost, tomatsaus, kj\u00f8ttdeig, l\u00f8k og bacon.",
         "extra": "Allergener: hvete, melk, selleri",
-        "name": "04 PIZZABAKEREN SPESIAL",
-        "vegetarian": false,
-        "vegan": false
+        "name": "04 PIZZABAKEREN SPESIAL"
     },
     {
         "description": "ost, tomatsaus, kj\u00f8ttdeig, l\u00f8k og ananas.",
         "extra": "Allergener: hvete, melk, selleri",
-        "name": "05 SNADDER",
-        "vegetarian": false,
-        "vegan": false
+        "name": "05 SNADDER"
     },
     {
         "description": "ost, tomatsaus, pepperoni, l\u00f8k og r\u00f8d paprika.",
         "extra": "Allergener: hvete, melk, selleri",
-        "name": "06 MIX",
-        "vegetarian": false,
-        "vegan": false
+        "name": "06 MIX"
     },
     {
         "description": "ost, tomatsaus, marinert kylling, marinert biff, nachoschips, hvitl\u00f8k, mais og chili.",
         "extra": "Allergener: hvete, melk, selleri",
-        "name": "07 MEKSIKANEREN",
-        "vegetarian": false,
-        "vegan": false
+        "name": "07 MEKSIKANEREN"
     },
     {
         "description": "ost, tomatsaus, marinert biff i strimler, bacon og hvitl\u00f8k.",
         "extra": "Allergener: hvete, melk, selleri",
-        "name": "08 BIFFEN",
-        "vegetarian": false,
-        "vegan": false
+        "name": "08 BIFFEN"
     },
     {
         "description": "ost, tomatsaus, marinert biff i strimler, sjampinjong og l\u00f8k.",
         "extra": "Allergener: hvete, melk, selleri",
-        "name": "09 DEN MARINERTE",
-        "vegetarian": false,
-        "vegan": false
+        "name": "09 DEN MARINERTE"
     },
     {
         "description": "ost, tomatsaus, pepperbiff i strimler, sjampinjong, l\u00f8k og r\u00f8d paprika.",
         "extra": "Allergener: hvete, melk, sennep, selleri",
-        "name": "10 PEPPERSVENNEN",
-        "vegetarian": false,
-        "vegan": false
+        "name": "10 PEPPERSVENNEN"
     },
     {
         "description": "ost, tacosaus, kj\u00f8ttdeig, nachoschips og jalape\u00f1os.",
         "extra": "Allergener: hvete, melk",
-        "name": "11 FLAMMEN",
-        "vegetarian": false,
-        "vegan": false
+        "name": "11 FLAMMEN"
     },
     {
         "description": "ost, tacosaus, marinert kylling, nachoschips og\u00a0jalape\u00f1os.",
         "extra": "Allergener: hvete, melk",
-        "name": "12 TACOKYLLINGEN",
-        "vegetarian": false,
-        "vegan": false
+        "name": "12 TACOKYLLINGEN"
     },
     {
         "description": "ost, tomatsaus, marinert kylling, l\u00f8k, mais og sjampinjong.",
         "extra": "Allergener: hvete, melk, selleri",
-        "name": "13 KOKKENS KYLLING",
-        "vegetarian": false,
-        "vegan": false
+        "name": "13 KOKKENS KYLLING"
     },
     {
         "description": "ost, tomatsaus, kj\u00f8ttdeig, luksusbacon og ananas.",
         "extra": "Allergener: hvete, melk, selleri",
-        "name": "14 KOKKENS FAVORITT",
-        "vegetarian": false,
-        "vegan": false
+        "name": "14 KOKKENS FAVORITT"
     },
     {
         "description": "ost, tomatsaus, marinert kylling, luksusbacon, l\u00f8k og r\u00f8d paprika.",
         "extra": "Allergener: hvete, melk, selleri",
-        "name": "16 LUKSUSKYLLING",
-        "vegetarian": false,
-        "vegan": false
+        "name": "16 LUKSUSKYLLING"
     },
     {
         "description": "ost, tomatsaus, marinert kylling, chili, pesto og tomater i skiver.",
         "extra": "Allergener: hvete, melk, selleri",
-        "name": "17 KYLLINGFARMEN",
-        "vegetarian": false,
-        "vegan": false
+        "name": "17 KYLLINGFARMEN"
     },
     {
         "description": "ost, tomatsaus, sjampinjong, r\u00f8d paprika, gul paprika og v\u00e5rl\u00f8k.",
         "extra": "Allergener: hvete, melk, selleri",
         "name": "18 VEGETARIANEREN",
-        "vegetarian": true,
-        "vegan": false
+        "vegetarian": true
     },
     {
         "description": "ost, tomatsaus med chili, kebabkj\u00f8tt, mais, r\u00f8dl\u00f8k og jalape\u00f1o.",
         "extra": "Toppes med kebab hvitl\u00f8ksdressing",
-        "name": "19 KEBABEN",
-        "vegetarian": false,
-        "vegan": false
+        "name": "19 KEBABEN"
     },
     {
         "description": "ost, tomatsaus, skinke og bacon.",
         "extra": "Allergener: hvete, melk, selleri",
-        "name": "20 DRENGEN",
-        "vegetarian": false,
-        "vegan": false
+        "name": "20 DRENGEN"
     },
     {
         "description": "ost, tomatsaus, kj\u00f8ttdeig, pepperoni, l\u00f8k og ananas.",
         "extra": "Allergener: hvete, melk, selleri",
-        "name": "21 MR.X",
-        "vegetarian": false,
-        "vegan": false
+        "name": "21 MR.X"
     },
     {
         "description": "ost, tomatsaus, chorizo, marinert biff og l\u00f8k.",
         "extra": "Allergener: hvete, melk, selleri",
-        "name": "22 CHORIZO SPESIAL",
-        "vegetarian": false,
-        "vegan": false
+        "name": "22 CHORIZO SPESIAL"
     },
     {
         "description": "ost, tomatsaus, skinke, kj\u00f8ttdeig og oregano.",
         "extra": "Allergener: hvete, melk, selleri",
-        "name": "23 DOBBELDEKKER",
-        "vegetarian": false,
-        "vegan": false
+        "name": "23 DOBBELDEKKER"
     },
     {
         "description": "ost, tomatsaus, sterk og marinert kylling, bacon og ananas.",
         "extra": "Allergener: hvete, melk, selleri",
-        "name": "24 HEIT KYLLING",
-        "vegetarian": false,
-        "vegan": false
+        "name": "24 HEIT KYLLING"
     },
     {
         "description": "ost, tomatsaus, chorizo, pesto, oregano og tomat.",
         "extra": "Allergener: hvete, melk, selleri",
-        "name": "25 CHORIZOEN",
-        "vegetarian": false,
-        "vegan": false
+        "name": "25 CHORIZOEN"
     },
     {
         "description": "ost, tomatsaus, pepperoni, skinke og ananas.",
         "extra": "Allergener: hvete, melk, selleri",
-        "name": "26 TOSPANNET",
-        "vegetarian": false,
-        "vegan": false
+        "name": "26 TOSPANNET"
     },
     {
         "description": "ost, tomatsaus, pepperbiff, pepperoni og r\u00f8d paprika.",
         "extra": "Allergener: hvete, melk, sennep, selleri",
-        "name": "28 HOTTENTOPPEN",
-        "vegetarian": false,
-        "vegan": false
+        "name": "28 HOTTENTOPPEN"
     },
     {
         "description": "ost, tomatsaus, marinert svinekj\u00f8tt, bacon, mais, r\u00f8dl\u00f8k. Toppes med deilig BBQ-saus.",
         "extra": "Allergener: hvete, melk, soya, selleri",
-        "name": "29 BBQen",
-        "vegetarian": false,
-        "vegan": false
+        "name": "29 BBQen"
     },
     {
         "description": "ost, tomatsaus med chili, sterk og marinert kylling, r\u00f8dl\u00f8k og jalapeno.",
         "extra": "Allergener: hvete, melk, selleri",
-        "name": "31 KRUTTSTERK",
-        "vegetarian": false,
-        "vegan": false
+        "name": "31 KRUTTSTERK"
     },
     {
         "description": "ost, hvit saus, sterk og marinert kylling, pepperoni, r\u00f8dl\u00f8k, chili og v\u00e5rl\u00f8k.",
         "extra": "Allergener: hvete, melk, sennep, egg",
-        "name": "51 T\u00d8FFINGEN",
-        "vegetarian": false,
-        "vegan": false
+        "name": "51 T\u00d8FFINGEN"
     },
     {
         "description": "ost, hvit saus, r\u00f8d paprika, gul paprika, r\u00f8dl\u00f8k, mais, chili, hvitl\u00f8k og v\u00e5rl\u00f8k.",
         "extra": "Allergener: hvete, melk, sennep, egg",
         "name": "52 VEGGIS",
-        "vegetarian": true,
-        "vegan": false
+        "vegetarian": true
     }
 ]

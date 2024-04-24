@@ -24,8 +24,15 @@ pub struct PizzaEntry {
     pub name: String,
     pub extra: String,
     pub description: String,
+    /// Indicates that the pizza contains only vegan-friendly ingredients
+    #[serde(default)]
+    /// Indicates that the pizza contains only vegetarian-friendly ingredients
     pub vegan: bool,
+    #[serde(default)]
     pub vegetarian: bool,
+    /// Indicates that the pizza is a personal size
+    #[serde(default)]
+    pub personal: bool,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -48,13 +55,22 @@ fn get_random_element<T>(source: &[T]) -> Option<&T> {
     source.choose(&mut rng)
 }
 
+/// Get a random pizza from the registry given a filter
+///
+/// If the filter is [SpinMode::Any], then you cannot get a personal size pizza.
+/// If the filter is [SpinMode::Vegan], then you can only get a vegan pizza, which also implies that
+/// the pizza is personal size (see the menu)
+/// If the filter is [SpinMode::Vegetarian], then you can only get a vegetarian pizza, and you
+/// cannot get a personal size pizza.
 pub fn get_random_pizza(filter: SpinMode) -> &'static PizzaEntry {
     let filtered_pizzas: Vec<&PizzaEntry> = PIZZAS
         .iter()
         .filter(|pizza_entry| match filter {
-            SpinMode::Any => true,
+            SpinMode::Any => !pizza_entry.personal,
             SpinMode::Vegan => pizza_entry.vegan,
-            SpinMode::Vegetarian => pizza_entry.vegetarian,
+            SpinMode::Vegetarian => {
+                !pizza_entry.personal && pizza_entry.vegetarian && pizza_entry.vegan
+            }
         })
         .collect();
 
